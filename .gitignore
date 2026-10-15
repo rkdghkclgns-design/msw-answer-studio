@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+
+# 크롤링 원본 — Discord 원문에는 크리에이터 글·닉네임이 포함되므로 절대 커밋하지 않는다
+data/discord/
+# 공식 문서 원본은 스크립트로 재생성 가능(용량 큼)
+data/raw/
+
+# 골든 평가 초안 조각(합친 eval/golden.json 만 커밋)과 로컬 평가 결과
+eval/golden-part-*.json
+eval/results/
+*.tsbuildinfo

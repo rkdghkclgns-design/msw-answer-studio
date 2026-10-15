@@ -1,0 +1,11 @@
+{
+  "builtAt": "2026-10-15T12:09:40.453Z",
+  "crawledAt": "2026-10-15T08:29:15.410Z",
+  "policyCrawledAt": "2026-10-15T08:57:51.934Z",
+  "policyDocCount": 15,
+  "source": "https://mverse-developers-api.nexon.com/v1",
+  "docCount": 1048,
+  "chunkCount": 6884,
+  "apiTypeCount": 574,
+  "apiMemberCount": 6017
+}
