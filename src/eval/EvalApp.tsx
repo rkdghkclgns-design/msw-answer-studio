@@ -9,7 +9,10 @@ import { loadSettings } from '../lib/settings';
 import { runGoldenItem, type ItemRun } from './run-item';
 
 const RUNS_KEY = 'msw-eval-runs';
-type Subset = 'all' | 'trap' | 'ko' | 'en' | 'zh';
+type Subset = 'all' | 'sample' | 'trap' | 'ko' | 'en' | 'zh';
+
+// 표본: 세 문항마다 하나(묶음·언어가 고르게 섞인다)
+const SAMPLE_EVERY = 3;
 
 function readRuns(): Record<string, ItemRun> {
   try {
@@ -53,7 +56,12 @@ export function EvalApp() {
   }, []);
 
   const selected = useMemo(
-    () => items.filter((it) => (subset === 'all' ? true : subset === 'trap' ? Boolean(it.trap) : it.lang === subset)).slice(0, limit),
+    () =>
+      items
+        .filter((it, i) =>
+          subset === 'all' ? true : subset === 'sample' ? i % SAMPLE_EVERY === 0 : subset === 'trap' ? Boolean(it.trap) : it.lang === subset,
+        )
+        .slice(0, limit),
     [items, subset, limit],
   );
   const grades = useMemo(() => selected.filter((it) => runs[it.id]).map((it) => gradeOutcome(it, runs[it.id])), [selected, runs]);
@@ -107,6 +115,7 @@ export function EvalApp() {
       <div className="form-row">
         <select value={subset} onChange={(e) => setSubset(e.target.value as Subset)} disabled={running}>
           <option value="all">전체</option>
+          <option value="sample">표본(3문항마다 1개)</option>
           <option value="trap">함정 문항</option>
           <option value="ko">한국어</option>
           <option value="en">영어</option>
