@@ -160,6 +160,15 @@ describe('runPipeline', () => {
     expect(result.finalVerification.unlinkedSentences).toEqual(['심사 기간에도 출품 월드를 자유롭게 수정할 수 있습니다 [1].']);
   });
 
+  it('fails an answer that discloses a confidential term from the operator notes', async () => {
+    const leaky = goodAnswer.replace('감사합니다.', '행사는 12월 31일에 시작합니다.\n감사합니다.');
+    const opsNotes = { updatedAt: '2026-10-16', origin: 'x', notes: [], answerGuidance: [], confidentialTerms: ['12월 31일'] };
+    const { client } = fakeClient([analysis, supportedClaims], [leaky]);
+    const result = await runPipeline({ question: 'q', kb, settings: { ...settings, autoRevise: false }, callbacks: recorder().callbacks, client, opsNotes });
+    expect(result.finalVerification.summary.status).toBe('failed');
+    expect(result.finalVerification.confidentialLeaks).toEqual(['12월 31일']);
+  });
+
   it('checks answers with the strongest model even when a smaller model writes them', async () => {
     const models: string[] = [];
     const { client } = fakeClient([analysis, supportedClaims], [goodAnswer], models);

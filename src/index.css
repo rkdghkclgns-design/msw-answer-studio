@@ -808,3 +808,9 @@ dialog.settings::backdrop {
   text-align: left;
   vertical-align: top;
 }
+
+/* 로컬 전용 운영 메모 */
+.ops-notes summary {
+  cursor: pointer;
+  font-weight: 600;
+}

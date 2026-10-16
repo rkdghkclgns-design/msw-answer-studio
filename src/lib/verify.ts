@@ -5,6 +5,7 @@ import { analyzeCitations, factualSentences, type CitationReport } from './citat
 import { structuredCall, type Effort, type ModelId } from './claude';
 import { applyQuoteChecks, findUnlinkedSentences, summarizeVerification, type CheckedClaim, type VerificationSummary } from './factcheck';
 import type { KnowledgeBase } from './kb-core';
+import { findConfidentialLeaks } from './ops-notes';
 import { buildVerifyUser, VERIFY_SYSTEM } from './prompts';
 import { VerificationSchema } from './schemas';
 import { extractApiMentions, markQuestionMentions, verifyApiMentions, type MentionCheck } from './symbols';
@@ -18,6 +19,8 @@ export interface VerificationResult {
   readonly unlinkedSentences: readonly string[];
   /** 검증기가 사실 주장이 없다고 보고 뺀 문장(위험 표현이 없는 것만 인정) */
   readonly excludedSentences: readonly { readonly text: string; readonly reason: string }[];
+  /** 답변에 드러난 운영 메모(대외비) 표현 */
+  readonly confidentialLeaks: readonly string[];
   readonly summary: VerificationSummary;
 }
 
@@ -42,6 +45,8 @@ export async function verifyAnswer(params: {
   readonly sources: readonly Source[];
   readonly kb: KnowledgeBase;
   readonly signal?: AbortSignal;
+  /** 운영 메모의 대외비 표현 (질문·출처에 없는데 답변에 나오면 실패) */
+  readonly confidentialTerms?: readonly string[];
 }): Promise<VerificationResult> {
   const { apiChecks, citations } = deterministicChecks(params.answer, params.sources, params.kb, params.question);
   const sentences = factualSentences(params.answer);
@@ -57,13 +62,16 @@ export async function verifyAnswer(params: {
   const sourceTexts = new Map(params.sources.map((s) => [s.n, `${s.doc.title}\n${s.heading}\n${s.text}`]));
   const claims = applyQuoteChecks(output.claims, sourceTexts);
   const coverage = findUnlinkedSentences(sentences, output.claims, output.excludedSentences);
+  const context = [params.question, ...params.sources.map((s) => `${s.doc.title}\n${s.text}`)].join('\n');
+  const confidentialLeaks = findConfidentialLeaks(params.answer, params.confidentialTerms ?? [], context);
   return {
     claims,
     apiChecks,
     citations,
     unlinkedSentences: coverage.unlinked.map((s) => s.text),
     excludedSentences: coverage.excluded,
-    summary: summarizeVerification(claims, apiChecks, citations, coverage.unlinked.length),
+    confidentialLeaks,
+    summary: summarizeVerification(claims, apiChecks, citations, coverage.unlinked.length, confidentialLeaks.length),
   };
 }
 
@@ -84,5 +92,6 @@ export function describeIssues(result: VerificationResult): string[] {
   const coverageIssues = result.unlinkedSentences.map(
     (s) => `- [대조 누락] "${s}" — 근거 출처를 [n]으로 인용하거나, 근거가 없으면 삭제하거나 "공식 문서상 확인되지 않습니다"로 바꿀 것`,
   );
-  return [...claimIssues, ...apiIssues, ...citationIssues, ...coverageIssues];
+  const leakIssues = result.confidentialLeaks.map((t) => `- [대외비] "${t}" 관련 내용은 공지 전 내부 정보이므로 답변에서 삭제할 것`);
+  return [...leakIssues, ...claimIssues, ...apiIssues, ...citationIssues, ...coverageIssues];
 }

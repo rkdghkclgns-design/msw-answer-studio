@@ -1,4 +1,4 @@
-// 검색 품질 회귀 평가: 실제 KB(docs.json + qa.json)에 대표 문의 26건을 던져
+// 검색 품질 회귀 평가: 실제 KB(docs.json + qa.json)에 대표 문의 29건을 던져
 // 기대 문서가 근거 목록(상위 10개) 안에 들어오는지 본다. KB가 없으면 건너뛴다.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -62,6 +62,9 @@ const CASES: readonly Case[] = [
   { area: 'AI Toolkit', queries: ['UIBuilder GridView 저장 오류'], expect: /UIBuilder|GridView|mswai/ },
   { area: '과거 답변', queries: ['DataStorage CAS expectedValue InternalError 1000001'], identifiers: ['DataStorageService'], expect: /DataStorage CAS/ },
   { area: '과거 답변', queries: ['출시 이후 카메라 화면 흔들림'], expect: /카메라 화면이 흔들리는/ },
+  { area: '미션·출석 구현', queries: ['연속 출석 일수 저장과 보상 구현', 'DataStorage 유저 데이터 저장'], identifiers: ['DataStorageService'], expect: /DataStorage/ },
+  { area: '미션·출석 구현', queries: ['출석 날짜 비교 하루 지나면 초기화', '날짜와 시간 활용'], expect: /날짜와 시간|DateTime|TimeSpan/ },
+  { area: '미션·출석 구현', queries: ['월드코인으로 상점 아이템 판매', '월드코인 상점'], expect: /월드코인|상점/ },
   { area: '원문 그대로(영어)', queries: ['How do I spawn a monster from a script?'], identifiers: ['SpawnService'], expect: /^SpawnService$/ },
   { area: '원문 그대로(중국어)', queries: ['競賽 審查期間 可以更新世界嗎'], expect: /競賽|POLICY|공모전|FAQ/ },
 ];

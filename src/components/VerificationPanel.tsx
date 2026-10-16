@@ -102,6 +102,11 @@ export function VerificationPanel({ final, draft, running, onCitationClick }: Pr
               ))}
             </ul>
           )}
+          {result.confidentialLeaks.length > 0 && (
+            <p className="notice notice-error">
+              운영 메모(대외비) 표현이 답변에 들어 있습니다: {result.confidentialLeaks.join(', ')} — 삭제한 뒤 게시하세요.
+            </p>
+          )}
           <h3 className="hint" style={{ margin: '10px 0 6px' }}>
             주장별 근거 대조 ({result.claims.length}건)
           </h3>

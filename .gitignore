@@ -13,3 +13,6 @@ data/raw/
 eval/golden-part-*.json
 eval/results/
 *.tsbuildinfo
+
+# 운영 내부 메모(대외비 일정·계획) — 로컬 앱 전용, 저장소·배포에 올리지 않는다
+internal/

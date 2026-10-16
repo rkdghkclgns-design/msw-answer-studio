@@ -3,6 +3,7 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import { createClient, streamText, structuredCall, type ModelId } from './claude';
 import type { KnowledgeBase } from './kb-core';
+import type { OpsNotes } from './ops-notes';
 import { ANALYZE_SYSTEM, ANSWER_SYSTEM, buildAnalyzeUser, buildAnswerUser, buildReviseUser, REVISE_SYSTEM } from './prompts';
 import { retrieve } from './retrieve';
 import { AnalysisSchema, type Analysis } from './schemas';
@@ -83,8 +84,11 @@ export async function runPipeline(params: {
   readonly signal?: AbortSignal;
   /** 테스트에서 가짜 클라이언트를 주입할 때만 사용 */
   readonly client?: Anthropic;
+  /** 로컬 전용 운영 메모(대외비). 답변 판단에 쓰고, 답변에 드러나면 검증 실패로 처리한다. */
+  readonly opsNotes?: OpsNotes | null;
 }): Promise<PipelineResult> {
   const { question, kb, settings, callbacks: cb, signal } = params;
+  const opsNotes = params.opsNotes ?? null;
   const client = params.client ?? createClient(settings.apiKey, settings.workspaceId);
   const common = { model: settings.model, signal };
 
@@ -111,7 +115,7 @@ export async function runPipeline(params: {
     ...common,
     effort: settings.effort,
     system: ANSWER_SYSTEM,
-    user: buildAnswerUser(question, analysis, sources),
+    user: buildAnswerUser(question, analysis, sources, undefined, opsNotes),
     maxTokens: STREAM_MAX_TOKENS,
     onThinking: thinkingReporter((d) => cb.stage('answer', 'running', d), '답변 작성'),
     onText: (delta) => {
@@ -123,7 +127,16 @@ export async function runPipeline(params: {
   cb.stage('answer', 'done', `${draft.length.toLocaleString()}자`);
 
   cb.stage('verify', 'running');
-  const verifyParams = { client, model: VERIFIER_MODEL, signal, effort: settings.effort, question, sources, kb };
+  const verifyParams = {
+    client,
+    model: VERIFIER_MODEL,
+    signal,
+    effort: settings.effort,
+    question,
+    sources,
+    kb,
+    confidentialTerms: opsNotes?.confidentialTerms ?? [],
+  };
   const draftVerification = await verifyAnswer({ ...verifyParams, answer: draft });
   cb.verification(draftVerification, 'draft');
   cb.stage('verify', 'done', `주장 ${draftVerification.claims.length}건 검사`);

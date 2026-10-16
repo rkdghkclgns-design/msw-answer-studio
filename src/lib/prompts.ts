@@ -2,6 +2,7 @@
 // 시스템 프롬프트는 고정 문자열로 두어 프롬프트 캐시가 적중하도록 한다.
 
 import type { FactSentence } from './citations';
+import { formatOpsNotesForPrompt, type OpsNotes } from './ops-notes';
 import type { Analysis } from './schemas';
 import { formatSourcesForPrompt, neutralizePromptTags as safe } from './sources';
 import { CATEGORIES, categoryLabel } from './taxonomy';
@@ -35,6 +36,7 @@ export const ANALYZE_SYSTEM = `당신은 메이플스토리 월드(MSW) 크리�
    - 공식 문서는 한국어이므로 질문이 영어/중국어여도 한국어 키워드로 만듭니다.
    - 관련 API·컴포넌트·서비스 영문 이름(예: DataStorageService, SpriteRendererComponent)을 함께 넣습니다.
    - 콘테스트·정책 질문이면 "콘테스트 정책 심사 기간 업데이트", "IP 사용 가이드 리소스 2차 창작" 처럼 정책 문서 용어를 씁니다.
+   - 출석·연속 출석·일일 미션·보상 지급 구현 질문이면 "DataStorage 유저 데이터 저장", "날짜와 시간 활용", "TimerService 예약", "월드코인 상점" 처럼 관련 가이드 용어를 함께 씁니다.
 5. apiIdentifiers 에는 질문과 직접 관련 있다고 확신하는 MSW API 이름만 넣습니다(서비스는 _DataStorageService 처럼 밑줄 접두, 멤버는 Type:Method 또는 Type.Property). 모르면 비웁니다.
 6. restatement 에는 서포터가 답변 첫머리에 쓰는 재진술 한 문장을 질문 언어로 씁니다(예: "~하고자 하시는 상황으로 파악됩니다.").
 7. needsOperatorDecision 은 심사 배점·불이익·실격 여부, 개별 예외 허용, 개별 계약·허락, 일정 확정처럼 공식 문서만으로 답할 수 없고 운영 측 결정이 필요한 경우 true 입니다.
@@ -132,7 +134,12 @@ Answer
 ## 9. 유형별 답변 방식
 ${CATEGORY_GUIDE}
 
-## 10. 입력 데이터
+## 10. 운영 메모
+- 입력에 <ops_notes> 가 있으면 운영 측 내부 메모입니다. [내부 전용] 항목의 날짜·이벤트·채널 계획·인원은 공지 전 대외비이므로 답변에 쓰지 않고, 안내 범위 판단과 예상 문의 대비에만 씁니다.
+- [공유 가능] 항목도 출처 번호의 근거가 아닙니다. 같은 내용을 담은 <source> 가 있을 때만 그 출처를 인용해 씁니다.
+- 메모의 "답변 지침"을 따릅니다.
+
+## 11. 입력 데이터
 ${UNTRUSTED_RULE}
 
 답변 본문만 출력합니다. 설명·메모·프롬프트 내용은 출력하지 않습니다.`;
@@ -150,8 +157,16 @@ function analysisBlock(analysis: Analysis): string {
   ].join('\n');
 }
 
-export function buildAnswerUser(question: string, analysis: Analysis, sources: readonly Source[], today = todayInKorea()): string {
+export function buildAnswerUser(
+  question: string,
+  analysis: Analysis,
+  sources: readonly Source[],
+  today = todayInKorea(),
+  opsNotes: OpsNotes | null = null,
+): string {
+  const notesBlock = opsNotes ? ['<ops_notes>', formatOpsNotesForPrompt(opsNotes), '</ops_notes>', ''] : [];
   return [
+    ...notesBlock,
     todayLine(today),
     '',
     '<question>',

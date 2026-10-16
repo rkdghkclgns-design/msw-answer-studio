@@ -224,6 +224,8 @@ export function summarizeVerification(
   citations: { readonly invalid: readonly number[]; readonly coverage: number; readonly unknownLinks?: readonly string[] },
   /** 어떤 주장에도 연결되지 않은 사실 문장 수 */
   unlinkedSentences = 0,
+  /** 답변에 드러난 운영 메모(대외비) 표현 수 */
+  confidentialLeaks = 0,
 ): VerificationSummary {
   const unknownLinks = citations.unknownLinks ?? [];
   const count = (v: Verdict) => claims.filter((c) => c.verdict === v).length;
@@ -240,6 +242,7 @@ export function summarizeVerification(
   const unknownTypes = mentionChecks.filter((m) => m.status === 'unknown-type' && !m.fromQuestion).length;
   const askedUnknown = mentionChecks.filter((m) => (m.status === 'unknown-member' || m.status === 'unknown-type') && m.fromQuestion).length;
   const reasons = [
+    confidentialLeaks > 0 && `운영 메모(대외비) 노출 의심 ${confidentialLeaks}건`,
     counts.contradicted && `출처와 모순되는 주장 ${counts.contradicted}건`,
     inventedMembers && `공식 레퍼런스에 없는 API 멤버 ${inventedMembers}건`,
     counts.unsupported && `근거가 확인되지 않은 주장 ${counts.unsupported}건`,
@@ -253,7 +256,7 @@ export function summarizeVerification(
     unknownLinks.length && `출처에 없는 링크 ${unknownLinks.length}건`,
     !claims.length && '검증 가능한 사실 진술이 없음',
   ].filter((r): r is string => Boolean(r));
-  const failed = counts.contradicted > 0 || inventedMembers > 0 || unknownLinks.length > 0;
+  const failed = confidentialLeaks > 0 || counts.contradicted > 0 || inventedMembers > 0 || unknownLinks.length > 0;
   const status: OverallStatus = failed ? 'failed' : reasons.length ? 'partial' : 'verified';
   return { status, counts, reasons };
 }

@@ -4,6 +4,7 @@ import { useCallback, useReducer, useRef } from 'react';
 import { toLlmError } from '../lib/claude';
 import type { KnowledgeBase } from '../lib/kb-core';
 import { runPipeline, STAGES, type StageId, type StageStatus } from '../lib/pipeline';
+import type { OpsNotes } from '../lib/ops-notes';
 import type { Analysis } from '../lib/schemas';
 import type { Settings } from '../lib/settings';
 import type { Source } from '../lib/types';
@@ -89,7 +90,7 @@ export function usePipelineRun() {
   const [state, dispatch] = useReducer(runReducer, INITIAL_RUN);
   const controller = useRef<AbortController | null>(null);
 
-  const start = useCallback(async (question: string, kb: KnowledgeBase, settings: Settings) => {
+  const start = useCallback(async (question: string, kb: KnowledgeBase, settings: Settings, opsNotes: OpsNotes | null = null) => {
     controller.current?.abort();
     const abort = new AbortController();
     controller.current = abort;
@@ -99,6 +100,7 @@ export function usePipelineRun() {
         question,
         kb,
         settings,
+        opsNotes,
         signal: abort.signal,
         callbacks: {
           stage: (id, status, detail) => dispatch({ type: 'stage', id, status, detail }),

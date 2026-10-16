@@ -33,7 +33,7 @@ export function mergeSourceLists(lists: readonly (readonly Source[])[], limit: n
 
 const attr = (value: string) => value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
-const PROMPT_TAGS = /<(\/?)\s*(sources?|question|answer|draft_answer|issues|analysis|fact_sentences)\b/gi;
+const PROMPT_TAGS = /<(\/?)\s*(sources?|question|answer|draft_answer|issues|analysis|fact_sentences|ops_notes)\b/gi;
 
 /** 신뢰할 수 없는 텍스트 안의 프롬프트 구분 태그를 무력화한다(＜ 로 바꿔 태그로 읽히지 않게). */
 export function neutralizePromptTags(text: string): string {
