@@ -3,6 +3,7 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import { createClient, streamText, structuredCall, type ModelId } from './claude';
 import type { KnowledgeBase } from './kb-core';
+import type { ImageInput } from './images';
 import type { OpsNotes } from './ops-notes';
 import { ANALYZE_SYSTEM, ANSWER_SYSTEM, buildAnalyzeUser, buildAnswerUser, buildReviseUser, REVISE_SYSTEM } from './prompts';
 import { retrieve } from './retrieve';
@@ -86,9 +87,12 @@ export async function runPipeline(params: {
   readonly client?: Anthropic;
   /** 로컬 전용 운영 메모(대외비). 답변 판단에 쓰고, 답변에 드러나면 검증 실패로 처리한다. */
   readonly opsNotes?: OpsNotes | null;
+  /** 문의에 첨부한 참고 이미지. 분석·답변 단계에만 보내고 검증 단계에는 보내지 않는다. */
+  readonly images?: readonly ImageInput[];
 }): Promise<PipelineResult> {
   const { question, kb, settings, callbacks: cb, signal } = params;
   const opsNotes = params.opsNotes ?? null;
+  const images = params.images ?? [];
   const client = params.client ?? createClient(settings.apiKey, settings.workspaceId);
   const common = { model: settings.model, signal };
 
@@ -97,7 +101,8 @@ export async function runPipeline(params: {
     ...common,
     effort: 'low',
     system: ANALYZE_SYSTEM,
-    user: buildAnalyzeUser(question),
+    user: buildAnalyzeUser(question, images.length),
+    images,
     schema: AnalysisSchema,
     maxTokens: STRUCTURED_MAX_TOKENS,
   });
@@ -116,6 +121,7 @@ export async function runPipeline(params: {
     effort: settings.effort,
     system: ANSWER_SYSTEM,
     user: buildAnswerUser(question, analysis, sources, undefined, opsNotes),
+    images,
     maxTokens: STREAM_MAX_TOKENS,
     onThinking: thinkingReporter((d) => cb.stage('answer', 'running', d), '답변 작성'),
     onText: (delta) => {

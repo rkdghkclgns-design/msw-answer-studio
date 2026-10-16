@@ -20,6 +20,9 @@ export const AnalysisSchema = z.object({
     .describe('질문에 포함된 개별 질문들 (1~5개)'),
   apiIdentifiers: z.array(z.string()).describe('관련 MSW API 식별자 (예: _DataStorageService, SpriteRendererComponent.SpriteRUID)'),
   needsOperatorDecision: z.boolean().describe('콘테스트 심사/정책 판단처럼 공식 문서만으로 답할 수 없고 운영 측 결정이 필요한가'),
+  imageFindings: z
+    .string()
+    .describe('첨부 이미지에서 읽은 내용: 오류 메시지·로그·코드·설정값은 원문 그대로, 화면 상태는 짧게 (이미지가 없으면 빈 문자열)'),
 });
 
 export type Analysis = z.infer<typeof AnalysisSchema>;

@@ -4,6 +4,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
 import type { z } from 'zod';
+import { toImageBlocks, type ImageInput } from './images';
 
 export type Effort = 'low' | 'medium' | 'high' | 'xhigh' | 'max';
 
@@ -73,8 +74,15 @@ interface CallBase {
   readonly effort: Effort;
   readonly system: string;
   readonly user: string;
+  /** 사용자 메시지 앞에 붙일 첨부 이미지 */
+  readonly images?: readonly ImageInput[];
   readonly maxTokens: number;
   readonly signal?: AbortSignal;
+}
+
+/** 이미지가 있으면 [이미지…, 텍스트] 블록 배열, 없으면 텍스트 그대로 */
+function userContent(params: CallBase) {
+  return params.images?.length ? [...toImageBlocks(params.images), { type: 'text' as const, text: params.user }] : params.user;
 }
 
 /**
@@ -95,7 +103,7 @@ export async function structuredCall<S extends z.ZodType>(
         betas: [FALLBACK_BETA],
         fallbacks: 'default',
         system: [{ type: 'text', text: params.system, cache_control: { type: 'ephemeral' } }],
-        messages: [{ role: 'user', content: params.user }],
+        messages: [{ role: 'user', content: userContent(params) }],
         output_config: { effort: params.effort, format: { type: 'json_schema', schema: format.schema } },
       },
       { signal: params.signal },
@@ -132,7 +140,7 @@ export async function streamText(
         fallbacks: 'default',
         thinking: { type: 'adaptive', display: 'summarized' },
         system: [{ type: 'text', text: params.system, cache_control: { type: 'ephemeral' } }],
-        messages: [{ role: 'user', content: params.user }],
+        messages: [{ role: 'user', content: userContent(params) }],
         output_config: { effort: params.effort },
       },
       { signal: params.signal },

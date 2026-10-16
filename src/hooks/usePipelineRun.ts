@@ -4,6 +4,7 @@ import { useCallback, useReducer, useRef } from 'react';
 import { toLlmError } from '../lib/claude';
 import type { KnowledgeBase } from '../lib/kb-core';
 import { runPipeline, STAGES, type StageId, type StageStatus } from '../lib/pipeline';
+import type { ImageInput } from '../lib/images';
 import type { OpsNotes } from '../lib/ops-notes';
 import type { Analysis } from '../lib/schemas';
 import type { Settings } from '../lib/settings';
@@ -86,11 +87,18 @@ export function runReducer(state: RunState, action: Action): RunState {
   }
 }
 
+/** 실행마다 선택적으로 붙는 입력: 로컬 운영 메모, 첨부 이미지 */
+export interface RunExtras {
+  readonly opsNotes?: OpsNotes | null;
+  readonly images?: readonly ImageInput[];
+}
+
 export function usePipelineRun() {
   const [state, dispatch] = useReducer(runReducer, INITIAL_RUN);
   const controller = useRef<AbortController | null>(null);
 
-  const start = useCallback(async (question: string, kb: KnowledgeBase, settings: Settings, opsNotes: OpsNotes | null = null) => {
+  const start = useCallback(async (question: string, kb: KnowledgeBase, settings: Settings, extras: RunExtras = {}) => {
+    const { opsNotes = null, images = [] } = extras;
     controller.current?.abort();
     const abort = new AbortController();
     controller.current = abort;
@@ -101,6 +109,7 @@ export function usePipelineRun() {
         kb,
         settings,
         opsNotes,
+        images,
         signal: abort.signal,
         callbacks: {
           stage: (id, status, detail) => dispatch({ type: 'stage', id, status, detail }),

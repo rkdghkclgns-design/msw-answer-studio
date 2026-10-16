@@ -56,6 +56,7 @@ describe('answer prompt with operator notes', () => {
     subQuestions: [],
     apiIdentifiers: [],
     needsOperatorDecision: false,
+    imageFindings: '',
   };
 
   it('adds an ops_notes block only when notes are given', () => {

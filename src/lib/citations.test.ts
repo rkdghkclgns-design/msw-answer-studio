@@ -114,3 +114,27 @@ describe('factualSentences', () => {
     expect(factualSentences(answer)).toEqual([{ id: 'S1', text: '심사 기간 중에는 출품하신 월드를 수정할 수 없습니다 [1].' }]);
   });
 });
+
+describe('restatements of attached images', () => {
+  it('does not treat a plain description of the attached screen as a fact claim', () => {
+    const answer = '첨부해 주신 화면에서 LEA-3004 MissingComponent 오류가 확인됩니다.';
+    expect(factualSentences(answer)).toEqual([]);
+    expect(factualSentences('The attached screenshot shows a LEA-3004 MissingComponent error in the console.')).toEqual([]);
+  });
+
+  it('still checks an image restatement that slips in a permission or prohibition', () => {
+    const answer = '첨부해 주신 화면의 설정이라면 심사 기간에도 월드를 수정하실 수 있습니다.';
+    expect(factualSentences(answer)).toHaveLength(1);
+  });
+});
+
+describe('estimate disclaimers', () => {
+  it('treats a sentence that labels something as the supporter\'s estimate as an uncertainty notice', () => {
+    expect(factualSentences('위 원인은 오류 메시지와 컴포넌트 설명을 바탕으로 한 서포터의 추정입니다.')).toEqual([]);
+    expect(factualSentences('이 해결 방법 자체는 공식 문서에 명시되어 있지 않으며 추정에 따른 제안입니다.')).toEqual([]);
+  });
+
+  it('still checks a disclaimer sentence that carries a permission claim', () => {
+    expect(factualSentences('추정입니다만 심사 기간에도 수정이 가능합니다.')).toHaveLength(1);
+  });
+});

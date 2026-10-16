@@ -5,7 +5,7 @@ const LANG: Record<Analysis['language'], string> = { ko: '한국어', en: 'Engli
 
 export function AnalysisPanel({ analysis }: { readonly analysis: Analysis }) {
   return (
-    <details className="card analysis">
+    <details className="card analysis" open={Boolean(analysis.imageFindings)}>
       <summary>질문 분석 결과 · {categoryLabel(analysis.category)}</summary>
       <dl className="kv">
         <dt>언어</dt>
@@ -16,6 +16,15 @@ export function AnalysisPanel({ analysis }: { readonly analysis: Analysis }) {
         <dd>{analysis.questionShapes.join(', ') || '-'}</dd>
         <dt>운영 판단</dt>
         <dd>{analysis.needsOperatorDecision ? '필요' : '불필요'}</dd>
+        {analysis.imageFindings && (
+          <>
+            <dt>첨부 이미지 판독</dt>
+            <dd style={{ whiteSpace: 'pre-wrap' }}>
+              {analysis.imageFindings}
+              <div className="hint">모델이 읽은 내용입니다. 원본 이미지와 다르면 게시 전에 바로잡아 주세요.</div>
+            </dd>
+          </>
+        )}
         <dt>관련 API</dt>
         <dd>{analysis.apiIdentifiers.length ? analysis.apiIdentifiers.map((id) => <code key={id}>{id} </code>) : '-'}</dd>
         {analysis.subQuestions.map((sq, i) => (

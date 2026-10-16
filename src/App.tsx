@@ -11,6 +11,8 @@ import { VerificationPanel } from './components/VerificationPanel';
 import { useKnowledgeBase } from './hooks/useKnowledgeBase';
 import { usePipelineRun } from './hooks/usePipelineRun';
 import { extractCitationNumbers } from './lib/citations';
+import { prepareImage } from './lib/image-prep';
+import { checkImageFile, MAX_IMAGES, type ImageInput } from './lib/images';
 import { loadOpsNotes, type OpsNotes } from './lib/ops-notes';
 import { loadSettings, saveSettings, type Settings } from './lib/settings';
 
@@ -31,6 +33,9 @@ export default function App() {
   const [question, setQuestion] = useState('');
   // 로컬 개발 서버에서만 운영 메모(대외비)를 읽는다. 배포본에서는 항상 null.
   const [opsNotes, setOpsNotes] = useState<OpsNotes | null>(null);
+  const [images, setImages] = useState<ImageInput[]>([]);
+  const [attaching, setAttaching] = useState(false);
+  const [attachError, setAttachError] = useState<string | null>(null);
 
   useEffect(() => {
     void loadOpsNotes().then(setOpsNotes);
@@ -45,8 +50,32 @@ export default function App() {
       setSettingsOpen(true);
       return;
     }
-    void start(question, kbState.kb, settings, opsNotes);
-  }, [kbState, hasKey, question, settings, start, opsNotes]);
+    void start(question, kbState.kb, settings, { opsNotes, images });
+  }, [kbState, hasKey, question, settings, start, opsNotes, images]);
+
+  // 첨부 이미지: 형식·개수·크기를 확인하고, 큰 이미지는 축소해 base64 로 준비한다
+  const addImages = async (files: File[]) => {
+    setAttachError(null);
+    setAttaching(true);
+    const problems: string[] = [];
+    const prepared: ImageInput[] = [];
+    for (const file of files) {
+      const problem = checkImageFile(file, images.length + prepared.length);
+      if (problem) {
+        problems.push(problem);
+        continue;
+      }
+      try {
+        prepared.push(await prepareImage(file));
+      } catch (error) {
+        problems.push(error instanceof Error ? error.message : String(error));
+      }
+    }
+    setImages((prev) => [...prev, ...prepared].slice(0, MAX_IMAGES));
+    setAttachError(problems.length ? [...new Set(problems)].join(' ') : null);
+    setAttaching(false);
+  };
+  const removeImage = (id: string) => setImages((prev) => prev.filter((img) => img.id !== id));
 
   const save = (next: Settings) => {
     saveSettings(next);
@@ -73,6 +102,11 @@ export default function App() {
             onChange={setQuestion}
             onSubmit={submit}
             onCancel={cancel}
+            images={images}
+            attaching={attaching}
+            attachError={attachError}
+            onAddImages={(files) => void addImages(files)}
+            onRemoveImage={removeImage}
           />
           {run.status !== 'idle' && (
             <section className="card">

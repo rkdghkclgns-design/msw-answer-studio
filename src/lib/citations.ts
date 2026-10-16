@@ -127,9 +127,16 @@ export function findUnknownLinks(answer: string, allowedUrls: readonly string[])
 /** 참고 자료 목록·링크 줄은 사실 문장이 아니므로 커버리지 계산에서 뺀다 */
 const REFERENCE_LINE = /^(\S.{0,80}:\s*)?<?https?:\/\/\S+>?$|^(참고 자료|References?|參考資料|Answer)\b/i;
 
+// 첨부 이미지 내용을 되짚는 문장은 질문 재진술과 같다. 다만 허용·금지 같은 판단이 섞이면 사실 주장으로 검사한다.
+const IMAGE_RESTATEMENT = /첨부(해 주신|하신|된|한) (화면|이미지|스크린샷|로그|사진|캡처)|attached (screenshot|image|log|screen)|screenshot you (attached|shared)|您附上的|附件(圖片|截圖|画面|畫面)/i;
+// "~는 서포터의 추정입니다"처럼 근거 없음을 밝히는 문장은 불확실성 고지다(판단이 섞이면 검사)
+const ESTIMATE_NOTICE = /추정입니다|추정에 따른|추정한 (것|내용)|this is (our|the supporter's) (estimate|assumption)/i;
+const POLICY_JUDGMENT = /가능|불가|허용|금지|필수|제한|의무|불이익|실격|수 있|수 없|\bcan\b|cannot|must|allowed|prohibit|可以|不可|禁止|必須/i;
+
 function isFactual(sentence: string): boolean {
   const bare = sentence.replace(CITATION_GROUP, '').replace(/[*_]/g, '').trim();
   if (bare.length < MIN_FACTUAL_LENGTH || REFERENCE_LINE.test(bare)) return false;
+  if ((IMAGE_RESTATEMENT.test(bare) || ESTIMATE_NOTICE.test(bare)) && !POLICY_JUDGMENT.test(bare)) return false;
   const lower = bare.toLowerCase();
   return !TEMPLATE_PHRASES.some((p) => lower.includes(p.toLowerCase()));
 }

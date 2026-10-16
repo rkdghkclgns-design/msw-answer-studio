@@ -37,6 +37,7 @@ const analysis: Analysis = {
   subQuestions: [{ question: '스크립트로 몬스터를 스폰하는 방법', searchQueries: ['SpawnByModelId 스폰 parent'] }],
   apiIdentifiers: ['_SpawnService:SpawnByModelId'],
   needsOperatorDecision: false,
+  imageFindings: '',
 };
 
 const supportedClaims = {
@@ -54,19 +55,23 @@ const supportedClaims = {
 };
 
 /** SDK 의 beta.messages.parse/stream 모양만 흉내 내는 가짜 클라이언트 */
-function fakeClient(parseOutputs: unknown[], streamTexts: string[], models: string[] = []) {
+type SentBody = { model: string; messages: { content: unknown }[] };
+
+function fakeClient(parseOutputs: unknown[], streamTexts: string[], models: string[] = [], bodies: { kind: string; body: SentBody }[] = []) {
   const parseQueue = [...parseOutputs];
   const streamQueue = [...streamTexts];
   const calls = { parse: 0, stream: 0 };
   const client = {
     beta: {
       messages: {
-        create: async (body: { model: string }) => {
+        create: async (body: SentBody) => {
           calls.parse += 1;
           models.push(body.model);
+          bodies.push({ kind: 'create', body });
           return { stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify(parseQueue.shift()) }] };
         },
-        stream: () => {
+        stream: (body: SentBody) => {
+          bodies.push({ kind: 'stream', body });
           calls.stream += 1;
           const text = streamQueue.shift() ?? '';
           const listeners: ((delta: string) => void)[] = [];
@@ -167,6 +172,19 @@ describe('runPipeline', () => {
     const result = await runPipeline({ question: 'q', kb, settings: { ...settings, autoRevise: false }, callbacks: recorder().callbacks, client, opsNotes });
     expect(result.finalVerification.summary.status).toBe('failed');
     expect(result.finalVerification.confidentialLeaks).toEqual(['12월 31일']);
+  });
+
+  it('sends attached images to the analysis and answer steps, but not to the checker', async () => {
+    const bodies: { kind: string; body: SentBody }[] = [];
+    const image = { id: '1', name: 'err.png', mediaType: 'image/png' as const, data: 'iVBORw0KGgo=', width: 10, height: 10, bytes: 8 };
+    const { client } = fakeClient([analysis, supportedClaims], [goodAnswer], [], bodies);
+    await runPipeline({ question: 'q', kb, settings, callbacks: recorder().callbacks, client, images: [image] });
+    const contentOf = (i: number) => bodies[i].body.messages[0].content;
+    const hasImage = (c: unknown) => Array.isArray(c) && c.some((b: { type: string }) => b.type === 'image');
+    expect(bodies.map((b) => b.kind)).toEqual(['create', 'stream', 'create']);
+    expect(hasImage(contentOf(0))).toBe(true);
+    expect(hasImage(contentOf(1))).toBe(true);
+    expect(hasImage(contentOf(2))).toBe(false);
   });
 
   it('checks answers with the strongest model even when a smaller model writes them', async () => {
