@@ -33,7 +33,7 @@
 |---|---|---|
 | `docs.json` | 크리에이터 센터 공개 API(`mverse-developers-api.nexon.com/v1/bbs`) — 가이드·API 레퍼런스·강좌 + 약관·운영정책·FAQ·콘테스트 정책 | 문서 1,048건 · 청크 6,884개 |
 | `symbols.json` | API 레퍼런스에서 추출한 타입/멤버/시그니처/배지(ServerOnly·ClientOnly·Deprecated 등) | 574 타입 · 6,017 멤버 |
-| `qa.json` | Global Creator Challenge Discord 서버 60개 채널: 공지·FAQ·안내 채널의 공식 글, creation-qa·support·AI Toolkit 토론방·메커톤/모각코 질문 채널의 공식 답변(질문은 익명화 요약, 일반 유저 잡담·이벤트 당첨자 명단은 제외) | 공식 공지 320건 · 공식 답변 364건 |
+| `qa.json` | Global Creator Challenge Discord 서버 60개 채널: 공지·FAQ·안내 채널의 공식 글, creation-qa·support·AI Toolkit 토론방·메커톤/모각코 질문 채널의 공식 답변(질문은 익명화 요약, 일반 유저 잡담·이벤트 당첨자 명단은 제외) | 공식 공지 320건 · 공식 답변 371건 |
 
 `qa.json` 정리 규칙 (`scripts/lib/privacy.mjs`, `scripts/lib/channels.mjs`)
 
@@ -52,7 +52,7 @@ npm run build:kb                   # → public/kb/docs.json, symbols.json, meta
 npm run build:qa                   # data/discord/* → public/kb/qa.json
 ```
 
-Discord 수집은 로그인된 Chrome에서 페이지 DOM을 읽어 `scripts/receive-discord.mjs`(127.0.0.1 전용 수신기)로 저장하는 방식입니다. 원본(`data/discord/`)에는 크리에이터 글이 포함되므로 저장소에 커밋하지 않습니다.
+Discord 수집은 로그인된 Chrome에서 페이지 DOM을 읽어 `scripts/receive-discord.mjs`(127.0.0.1 전용 수신기)로 저장하는 방식입니다. 브라우저에서 실행하는 수집 코드는 `scripts/discord-collector.js`에 있습니다(사용 순서는 파일 머리말). creation-qa 스레드는 2026-10-22에 다시 수집했습니다(140개, 메시지 715개). 원본(`data/discord/`)에는 크리에이터 글이 포함되므로 저장소에 커밋하지 않습니다.
 
 ## 실행
 
