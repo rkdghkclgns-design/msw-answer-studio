@@ -1,4 +1,4 @@
-// 검색 품질 회귀 평가: 실제 KB(docs.json + qa.json)에 대표 문의 31건을 던져
+// 검색 품질 회귀 평가: 실제 KB(docs.json + qa.json)에 대표 문의 33건을 던져
 // 기대 문서가 근거 목록(상위 10개) 안에 들어오는지 본다. KB가 없으면 건너뛴다.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -67,6 +67,8 @@ const CASES: readonly Case[] = [
   { area: '미션·출석 구현', queries: ['월드코인으로 상점 아이템 판매', '월드코인 상점'], expect: /월드코인|상점/ },
   { area: '과거 답변(10/22 수집)', queries: ['TransactSet TimedOut 1000004 콜백 호출 여부'], identifiers: ['DataStorageService'], expect: /TransactSet/ },
   { area: '과거 답변(10/22 수집)', queries: ['가판대 개인 상점 GMS 고유 콘텐츠 IP 활용 범위'], expect: /가판대/ },
+  { area: '다국어 적용', queries: ['인게임 다국어 자동 번역 적용 방법', 'SourceLanguage AllowAutomaticTranslation 지원 언어'], expect: /자동 번역/ },
+  { area: '다국어 적용', queries: ['월드 이름 설명 대표 이미지 언어별 등록', '월드 정보 번역하기'], expect: /월드 정보와 배지/ },
   { area: '원문 그대로(영어)', queries: ['How do I spawn a monster from a script?'], identifiers: ['SpawnService'], expect: /^SpawnService$/ },
   { area: '원문 그대로(중국어)', queries: ['競賽 審查期間 可以更新世界嗎'], expect: /競賽|POLICY|공모전|FAQ/ },
 ];

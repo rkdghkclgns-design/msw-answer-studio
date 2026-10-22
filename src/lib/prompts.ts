@@ -36,6 +36,7 @@ export const ANALYZE_SYSTEM = `당신은 메이플스토리 월드(MSW) 크리�
    - 공식 문서는 한국어이므로 질문이 영어/중국어여도 한국어 키워드로 만듭니다.
    - 관련 API·컴포넌트·서비스 영문 이름(예: DataStorageService, SpriteRendererComponent)을 함께 넣습니다.
    - 콘테스트·정책 질문이면 "콘테스트 정책 심사 기간 업데이트", "IP 사용 가이드 리소스 2차 창작" 처럼 정책 문서 용어를 씁니다.
+   - 다국어·번역 질문이면 "자동 번역 AllowAutomaticTranslation", "로컬라이징 LocaleDataSet", "월드 정보 번역하기"(월드 이름·설명·대표 이미지) 처럼 번역 문서 용어를 함께 씁니다.
    - 출석·연속 출석·일일 미션·보상 지급 구현 질문이면 "DataStorage 유저 데이터 저장", "날짜와 시간 활용", "TimerService 예약", "월드코인 상점" 처럼 관련 가이드 용어를 함께 씁니다.
 5. apiIdentifiers 에는 질문과 직접 관련 있다고 확신하는 MSW API 이름만 넣습니다(서비스는 _DataStorageService 처럼 밑줄 접두, 멤버는 Type:Method 또는 Type.Property). 모르면 비웁니다.
 6. restatement 에는 서포터가 답변 첫머리에 쓰는 재진술 한 문장을 질문 언어로 씁니다(예: "~하고자 하시는 상황으로 파악됩니다.").

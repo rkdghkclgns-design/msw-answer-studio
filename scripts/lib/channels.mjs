@@ -13,6 +13,8 @@ const QA_CHANNEL = /질문하기|개발문의|토론방|discussion|bug-report|�
 // '콘테스트' 와 겹치지 않도록 테스트 채널은 이름 전체로 지정.
 // 멘토링 신청·팀원 구인·미션 인증·개발 공유는 개별 참가자 대상 글이라 지식으로 싣지 않는다.
 const SKIP_CHANNEL = /ai-toolkit-테스트|change-roles|역할변경|linking|계정-연동|멘토링_신청|team-up|팀원구인|미션-인증|개발공유/i;
+// 참가 팀별 비공개 문의 채널: 스레드 제목이 개별 월드명이라 이름 대신 채널 ID로 막는다
+const PRIVATE_CHANNEL_IDS = new Set(['1557728440772333660']);
 // 이벤트 참여 포럼: 운영진이 올린 이벤트 안내 원글만 싣고 참가자 댓글은 뺀다
 const EVENT_FORUM = /event-participation|參與活動|이벤트참여/i;
 // 이벤트 당첨자 발표는 개별 크리에이터·월드명을 나열할 뿐 문의 답변 근거가 아니므로 싣지 않는다
@@ -174,6 +176,7 @@ function eventEntries(ch, label, sanitize) {
 
 /** @returns {{ section: 'notice'|'qa', entry: object }[]} */
 export function channelToEntries(ch, sanitize) {
+  if (PRIVATE_CHANNEL_IDS.has(String(ch.channelId))) return [];
   const label = channelLabel(ch.name ?? '');
   const kind = classifyChannel(label, ch.type);
   if (kind === 'skip') return [];

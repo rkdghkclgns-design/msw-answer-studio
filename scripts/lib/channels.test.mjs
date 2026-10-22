@@ -138,6 +138,24 @@ describe('channelToEntries', () => {
     expect(channelToEntries(ch, id)).toEqual([]);
   });
 
+  it('never publishes per-team private inquiry channels, whose threads are named after individual worlds', () => {
+    const ch = {
+      channelId: '1557728440772333660',
+      name: '🛠️ㆍsupport｜문의｜詢問 (채팅 채널), 비공개 채널(잠김)',
+      type: 'text',
+      messages: [],
+      threads: [{
+        threadId: '9',
+        title: '[어떤 월드]',
+        messages: [
+          msg('1', 'creator', 'C0', '월드 정보 번역은 어디에서 등록하나요?'),
+          msg('2', 'official', 'S1', '안녕하세요 크리에이터님, 월드 정보 관리의 번역 관리에서 등록해 주세요.', { replyTo: '월드 정보 번역은 어디에서 등록하나요?' }),
+        ],
+      }],
+    };
+    expect(channelToEntries(ch, id)).toEqual([]);
+  });
+
   it('skips test channels entirely', () => {
     expect(channelToEntries({ channelId: '4', name: '🔒・ai-toolkit-테스트', type: 'text', messages: [msg('1', 'official', 'S1', 'x'.repeat(100))], threads: [] }, id)).toEqual([]);
   });
