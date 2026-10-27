@@ -52,6 +52,26 @@ describe('createSymbolLookup', () => {
     expect(lookup.findMembers('SpriteRendererComponent', 'Enable')).toHaveLength(1);
     expect(lookup.findMembers('SpawnService', 'Missing')).toHaveLength(0);
   });
+
+  it('verifies APIs registered from distributed documents, which have no reference URL', () => {
+    const withEvent = createSymbolLookup({
+      types: {
+        ...registry.types,
+        PlatformEventService: {
+          cat: 'Services',
+          doc: 7,
+          url: '',
+          summary: '',
+          aliases: ['_PlatformEventService'],
+          members: [{ k: 'method', n: 'SetProgressAndWait', sig: 'int SetProgressAndWait(...)', b: ['[ServerOnly]'], d: '' }],
+        },
+      },
+    });
+    expect(withEvent.urlOf('PlatformEventService')).toBeNull();
+    const [check] = verifyApiMentions(extractApiMentions('`_PlatformEventService:SetProgressAndWait(...)`'), withEvent);
+    expect(check).toMatchObject({ status: 'verified', badges: ['[ServerOnly]'] });
+    expect(check.url).toBeUndefined();
+  });
 });
 
 describe('extractApiMentions', () => {

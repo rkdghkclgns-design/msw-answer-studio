@@ -34,10 +34,12 @@ export function toDiscordPost(answer: string, sources: readonly Source[]): strin
     .trim();
   if (HAS_REFERENCE_SECTION.test(body)) return body;
   const seen = new Set<string>();
+  // 운영 배포 문서는 링크가 없으므로 제목으로 중복을 거른다
+  const key = (s: Source) => s.doc.url || `title:${s.doc.title}`;
   const refs = cited
     .map((n) => sources.find((s) => s.n === n))
     .filter((s): s is Source => Boolean(s))
-    .filter((s) => (seen.has(s.doc.url) ? false : (seen.add(s.doc.url), true)))
-    .map((s) => `- ${s.doc.title}: <${s.doc.url}>`);
+    .filter((s) => (seen.has(key(s)) ? false : (seen.add(key(s)), true)))
+    .map((s) => (s.doc.url ? `- ${s.doc.title}: <${s.doc.url}>` : `- ${s.doc.title} (운영 배포 문서)`));
   return refs.length ? `${body}\n\n📎 참고 문서\n${refs.join('\n')}` : body;
 }

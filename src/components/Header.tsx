@@ -18,6 +18,7 @@ function KbBadges({ kbState }: { readonly kbState: KbState }) {
       <span>약관·정책·FAQ {count('policy')}</span>
       <span>공식 공지 {count('notice')}</span>
       <span>과거 공식 답변 {count('qa').toLocaleString()}</span>
+      <span>운영 배포 문서 {count('distributed')}</span>
       <span>문서 수집 {meta.crawledAt.slice(0, 10)}</span>
     </>
   );

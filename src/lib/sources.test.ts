@@ -43,6 +43,7 @@ describe('sourceKindLabel', () => {
     expect(sourceKindLabel(doc(1, 'apiReference'))).toBe('API 레퍼런스');
     expect(sourceKindLabel(doc(1, 'docs'))).toBe('공식 가이드');
     expect(sourceKindLabel(doc(1, 'qa'))).toBe('과거 공식 답변');
+    expect(sourceKindLabel(doc(1, 'distributed'))).toBe('운영 배포 문서');
   });
 });
 
@@ -61,6 +62,12 @@ describe('formatSourcesForPrompt', () => {
     expect(out.match(/<source /g)).toHaveLength(1);
     expect(out.match(/<\/source>/g)).toHaveLength(1);
     expect(out).toContain('＜/source>＜source n="9"');
+  });
+
+  it('omits the url attribute for distributed documents that have no public link', () => {
+    const out = formatSourcesForPrompt([{ ...src(1, { ...doc(1, 'distributed', '플랫폼 이벤트 API 명세'), url: '' }), n: 1 }]);
+    expect(out).toContain('kind="운영 배포 문서"');
+    expect(out).not.toContain('url=');
   });
 
   it('escapes quotes in attributes', () => {

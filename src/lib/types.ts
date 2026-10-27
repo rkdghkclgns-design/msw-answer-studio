@@ -1,8 +1,9 @@
 // 지식베이스·파이프라인 공용 타입
 
 /** docs=공식 가이드, apiReference=API 레퍼런스, resource=강좌/VOD, policy=약관·운영정책·FAQ·콘테스트 정책,
- *  notice=Discord 공식 공지(AI Toolkit 등), qa=Discord 과거 공식 답변 */
-export type DocSection = 'docs' | 'apiReference' | 'resource' | 'policy' | 'notice' | 'qa';
+ *  notice=Discord 공식 공지(AI Toolkit 등), qa=Discord 과거 공식 답변,
+ *  distributed=운영 측이 크리에이터에게 배포한 문서(공개 URL 없음, url 은 빈 문자열) */
+export type DocSection = 'docs' | 'apiReference' | 'resource' | 'policy' | 'notice' | 'qa' | 'distributed';
 
 export interface KbDoc {
   readonly i: number;

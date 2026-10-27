@@ -113,6 +113,18 @@ describe('factualSentences', () => {
     ].join('\n');
     expect(factualSentences(answer)).toEqual([{ id: 'S1', text: '심사 기간 중에는 출품하신 월드를 수정할 수 없습니다 [1].' }]);
   });
+
+  it('skips link-less reference lines for distributed documents', () => {
+    const answer = ['진행도는 월드 DB 기록에 맞춰 순차적으로 설정합니다 [1].', '**참고 자료**', '- 플랫폼 이벤트 API 명세 (운영 배포 문서)'].join('\n');
+    expect(factualSentences(answer).map((s) => s.text)).toEqual(['진행도는 월드 DB 기록에 맞춰 순차적으로 설정합니다 [1].']);
+  });
+
+  it('still checks body sentences that merely end with the distributed-document marker', () => {
+    const body = 'SetProgressAndWait 는 퍼블리싱 환경에서만 동작합니다(운영 배포 문서)';
+    const answer = [body, '**참고 자료**', '- 플랫폼 이벤트 API 명세 (운영 배포 문서)'].join('\n');
+    expect(factualSentences(answer).map((s) => s.text)).toEqual([body]);
+    expect(analyzeCitations(answer, 1).uncited).toEqual([body]);
+  });
 });
 
 describe('restatements of attached images', () => {

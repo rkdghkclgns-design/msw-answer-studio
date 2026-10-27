@@ -15,9 +15,15 @@ function SourceItem({ source, cited }: { readonly source: Source; readonly cited
       <div className="source-head">
         <span className="source-num">{source.n}</span>
         <div style={{ minWidth: 0 }}>
-          <a className="source-title" href={source.doc.url} target="_blank" rel="noopener noreferrer">
-            {source.doc.title}
-          </a>
+          {source.doc.url ? (
+            <a className="source-title" href={source.doc.url} target="_blank" rel="noopener noreferrer">
+              {source.doc.title}
+            </a>
+          ) : (
+            <span className="source-title" title="공개 링크가 없는 운영 배포 문서">
+              {source.doc.title}
+            </span>
+          )}
           <div className="source-path">
             <span className={kindClass}>{sourceKindLabel(source.doc)}</span> {source.doc.trail.join(' › ')}
             {source.heading && ` › ${source.heading}`}

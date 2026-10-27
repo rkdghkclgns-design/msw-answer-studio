@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { aliasesFor, isApiPage, parseApiPage } from './lib/api-parse.mjs';
 import { chunkMarkdown, chunkPolicyText, packParagraphs } from './lib/chunk.mjs';
+import { buildDistributedEntries, parseDistributedSource } from './lib/distributed.mjs';
 import { cleanMarkdown } from './lib/html-text.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -22,6 +23,17 @@ async function readPolicies() {
     return { docs: [], crawledAt: null };
   }
 }
+const DISTRIBUTED_DIR = join(ROOT, 'data', 'distributed');
+
+/** 운영 배포 문서(저장소에 커밋된 원문 옮김) — manifest.json 의 file 을 읽어 markdown 으로 채운다 */
+async function readDistributed() {
+  const manifest = JSON.parse(await readFile(join(DISTRIBUTED_DIR, 'manifest.json'), 'utf8'));
+  const docs = await Promise.all(
+    manifest.docs.map(async (d) => ({ ...d, markdown: await readFile(join(DISTRIBUTED_DIR, d.file), 'utf8') })),
+  );
+  return parseDistributedSource({ ...manifest, docs });
+}
+
 const OUT_DIR = join(ROOT, 'public', 'kb');
 const MIN_CHUNK_CHARS = 40;
 
@@ -114,12 +126,21 @@ async function main() {
     for (const c of chunkPolicyText(p.text)) chunks.push({ d: docIndex, h: c.heading, t: c.text });
   }
 
+  const distributed = buildDistributedEntries(await readDistributed(), docs.length);
+  docs.push(...distributed.docs);
+  chunks.push(...distributed.chunks);
+  for (const [name, type] of Object.entries(distributed.types)) {
+    if (types[name]) throw new Error(`${name} 은(는) 공개 API 레퍼런스에 이미 있습니다 — data/distributed/manifest.json 의 symbols 에서 지우세요`);
+    types[name] = type;
+  }
+
   await mkdir(OUT_DIR, { recursive: true });
   const meta = {
     builtAt: new Date().toISOString(),
     crawledAt: raw.crawledAt,
     policyCrawledAt: policies.crawledAt,
     policyDocCount: policies.docs.length,
+    distributedDocCount: distributed.docs.length,
     source: raw.source,
     docCount: docs.length,
     chunkCount: chunks.length,

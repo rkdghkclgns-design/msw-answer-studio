@@ -12,7 +12,7 @@ interface Props {
 }
 
 function withSourceList(run: RunState): string {
-  const list = run.sources.map((s) => `[${s.n}] ${s.doc.title} — ${s.doc.url}`).join('\n');
+  const list = run.sources.map((s) => `[${s.n}] ${s.doc.title} — ${s.doc.url || '운영 배포 문서'}`).join('\n');
   return `${run.answer.trim()}\n\n---\n출처\n${list}`;
 }
 

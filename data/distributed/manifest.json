@@ -1,0 +1,37 @@
+{
+  "note": "운영 측이 크리에이터에게 배포한 문서(공개 URL 없음)를 원문 그대로 옮겨 적은 것. 문서를 받은 날짜와 원본 파일명은 receivedFrom 에 남긴다. 운영자 결정(2026-10-28)으로 공개 지식베이스에 포함한다.",
+  "docs": [
+    {
+      "id": "distributed-platform-event-api",
+      "title": "플랫폼 이벤트 API 명세",
+      "trail": ["운영 배포 문서", "메월드 크리에이터 페스티벌 2026", "적용 범위: 메월드 크리에이터 페스티벌 2026 이벤트 참여 월드 대상"],
+      "date": "2026-03-17",
+      "file": "platform-event-api.md",
+      "receivedFrom": "플랫폼_이벤트_API_명세.pdf (2026-10-28 수령)"
+    },
+    {
+      "id": "distributed-meworld-creator-festival-2026-event-guide",
+      "title": "메크페2026 이벤트 운영 가이드",
+      "trail": ["운영 배포 문서", "메월드 크리에이터 페스티벌 2026", "적용 범위: 메월드 크리에이터 페스티벌 2026 이벤트 참여 월드 대상"],
+      "date": "2026-10-19",
+      "file": "meworld-creator-festival-2026-event-guide.md",
+      "receivedFrom": "메크페2026_이벤트 운영 가이드.pdf (2026-10-28 수령)"
+    }
+  ],
+  "symbols": {
+    "PlatformEventService": {
+      "doc": "distributed-platform-event-api",
+      "cat": "Services",
+      "summary": "플랫폼 이벤트 미션 진행도 API. 공개 API 레퍼런스가 아닌 운영 배포 문서(플랫폼 이벤트 API 명세) 기준. 권한이 필요하고 퍼블리싱 환경에서만 동작합니다.",
+      "members": [
+        {
+          "k": "method",
+          "n": "SetProgressAndWait",
+          "sig": "int SetProgressAndWait(string profileCode, string eventId, string missionCode, int progressValue)",
+          "b": ["[ServerOnly]"],
+          "d": "권한이 필요합니다. 퍼블리싱 환경에서만 동작합니다. 반환값은 ResultCode(PlatformEventProgressResult)입니다."
+        }
+      ]
+    }
+  }
+}

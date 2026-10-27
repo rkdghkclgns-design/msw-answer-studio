@@ -126,6 +126,23 @@ export function findUnknownLinks(answer: string, allowedUrls: readonly string[])
 
 /** 참고 자료 목록·링크 줄은 사실 문장이 아니므로 커버리지 계산에서 뺀다 */
 const REFERENCE_LINE = /^(\S.{0,80}:\s*)?<?https?:\/\/\S+>?$|^(참고 자료|References?|參考資料|Answer)\b/i;
+const REFERENCE_HEADING = /^\**\s*(참고 자료|References?|參考資料)\s*:?\s*\**$/i;
+// 링크 없는 운영 배포 문서의 참고 자료 줄. 본문 문장이 이 표시로 끝나도 검사를 피하지 않도록 참고 자료 제목 뒤에서만 뺀다.
+const LINKLESS_REFERENCE = /^([-*•]\s*)?\S.{0,120}\(운영 배포 문서\)$/;
+
+function withoutLinklessReferences(answer: string): string {
+  let inReferences = false;
+  return answer
+    .split('\n')
+    .filter((line) => {
+      const t = line.trim();
+      if (REFERENCE_HEADING.test(t)) inReferences = true;
+      return !(inReferences && LINKLESS_REFERENCE.test(t));
+    })
+    .join('\n');
+}
+
+const factualCandidates = (answer: string) => splitSentences(withoutLinklessReferences(answer)).filter(isFactual);
 
 // 첨부 이미지 내용을 되짚는 문장은 질문 재진술과 같다. 다만 허용·금지 같은 판단이 섞이면 사실 주장으로 검사한다.
 const IMAGE_RESTATEMENT = /첨부(해 주신|하신|된|한) (화면|이미지|스크린샷|로그|사진|캡처)|attached (screenshot|image|log|screen)|screenshot you (attached|shared)|您附上的|附件(圖片|截圖|画面|畫面)/i;
@@ -148,15 +165,13 @@ export interface FactSentence {
 
 /** 팩트체크가 빠짐없이 대조해야 할 사실 문장 목록 (S1, S2 …). 인사·권고·참고 자료 줄은 뺀다. */
 export function factualSentences(answer: string): FactSentence[] {
-  return splitSentences(answer)
-    .filter(isFactual)
-    .map((text, i) => ({ id: `S${i + 1}`, text }));
+  return factualCandidates(answer).map((text, i) => ({ id: `S${i + 1}`, text }));
 }
 
 export function analyzeCitations(answer: string, sourceCount: number, allowedUrls: readonly string[] = []): CitationReport {
   const used = extractCitationNumbers(answer);
   const invalid = used.filter((n) => n < 1 || n > sourceCount);
-  const factual = splitSentences(answer).filter(isFactual);
+  const factual = factualCandidates(answer);
   const uncited = factual.filter((s) => extractCitationNumbers(s).length === 0);
   return {
     used,

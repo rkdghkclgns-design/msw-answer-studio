@@ -64,7 +64,8 @@ export function createSymbolLookup(registry: SymbolRegistry): SymbolLookup {
       return base && base !== typeName ? ownMembers(base, member) : [];
     },
     categoryOf: (typeName) => registry.types[typeName]?.cat ?? null,
-    urlOf: (typeName) => registry.types[typeName]?.url ?? null,
+    // 운영 배포 문서에서 온 API 는 레퍼런스 URL 이 없다(빈 문자열)
+    urlOf: (typeName) => registry.types[typeName]?.url || null,
     isMemberName: (name) => memberNames.has(name),
   };
 }

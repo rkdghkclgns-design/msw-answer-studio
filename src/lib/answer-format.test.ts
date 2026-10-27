@@ -36,6 +36,16 @@ describe('toDiscordPost', () => {
     expect(post.match(/docs\/1/g)).toHaveLength(1);
   });
 
+  it('lists link-less distributed documents by title, each once', () => {
+    const noLink = (i: number, title: string): KbDoc => ({ ...doc(i, title), section: 'distributed', url: '' });
+    const list = [source(1, noLink(10, '플랫폼 이벤트 API 명세')), source(2, noLink(11, '메크페2026 이벤트 운영 가이드')), source(3, noLink(10, '플랫폼 이벤트 API 명세'))];
+    const post = toDiscordPost('호출합니다 [1]. 기록합니다 [2][3].', list);
+    expect(post).toContain('- 플랫폼 이벤트 API 명세 (운영 배포 문서)');
+    expect(post).toContain('- 메크페2026 이벤트 운영 가이드 (운영 배포 문서)');
+    expect(post).not.toContain('<>');
+    expect(post.match(/플랫폼 이벤트 API 명세/g)).toHaveLength(1);
+  });
+
   it('does not append a second reference list when the answer already has one', () => {
     const post = toDiscordPost('설정입니다 [1].\n\n**참고 자료**\n- WorldOrientation 가이드: https://docs/1', sources);
     expect(post).not.toContain('📎');

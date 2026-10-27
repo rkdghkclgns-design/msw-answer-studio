@@ -9,6 +9,7 @@ const KIND_LABELS: Readonly<Record<KbDoc['section'], string>> = {
   policy: '약관·정책·FAQ',
   notice: '공식 공지',
   qa: '과거 공식 답변',
+  distributed: '운영 배포 문서',
 };
 
 export function sourceKindLabel(doc: KbDoc): string {
@@ -55,7 +56,7 @@ export function formatSourcesForPrompt(sources: readonly Source[]): string {
         `path="${attr(s.doc.trail.join(' > '))}"`,
         s.heading && `section="${attr(s.heading)}"`,
         s.doc.modifiedAt && `date="${dateLabel(s.doc.modifiedAt)}"`,
-        `url="${attr(s.doc.url)}"`,
+        s.doc.url && `url="${attr(s.doc.url)}"`,
       ].filter(Boolean);
       return `<source ${attrs.join(' ')}>\n${neutralizePromptTags(s.text)}\n</source>`;
     })
