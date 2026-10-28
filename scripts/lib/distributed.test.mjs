@@ -51,6 +51,14 @@ describe('buildDistributedEntries', () => {
     expect(chunks[1].t).toContain('PlatformEventService.SetProgressAndWait —');
   });
 
+  it('produces the same chunks from CRLF checkouts (Windows autocrlf) as from LF', () => {
+    const lf = { ...SOURCE, docs: [{ ...SOURCE.docs[0], markdown: '# 개요\n설명 문단입니다.\n- ServerOnly 입니다.\n- 권한이 필요합니다.' }] };
+    const crlf = { ...lf, docs: [{ ...lf.docs[0], markdown: lf.docs[0].markdown.replace(/\n/g, '\r\n') }] };
+    const fromCrlf = buildDistributedEntries(parseDistributedSource(crlf), 10).chunks;
+    expect(fromCrlf).toEqual(buildDistributedEntries(parseDistributedSource(lf), 10).chunks);
+    expect(fromCrlf[0].t).not.toContain('\r');
+  });
+
   it('registers symbols against the new doc index with the service alias', () => {
     const { types } = buildDistributedEntries(parseDistributedSource(SOURCE), 10);
     expect(types.PlatformEventService).toMatchObject({ doc: 10, url: '', aliases: ['_PlatformEventService'], cat: 'Services' });

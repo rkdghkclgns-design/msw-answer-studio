@@ -44,7 +44,8 @@ export function buildDistributedEntries(source, startIndex) {
     const i = startIndex + docs.length;
     indexById.set(d.id, i);
     docs.push({ i, id: d.id, title: d.title, trail: d.trail, section: 'distributed', url: '', modifiedAt: kstMidnight(d.date) });
-    for (const c of chunkMarkdown(d.markdown)) chunks.push({ d: i, h: c.heading, t: c.text });
+    // Windows 체크아웃(core.autocrlf)의 CRLF 가 청크에 섞이면 CI 빌드와 결과가 달라진다
+    for (const c of chunkMarkdown(d.markdown.replace(/\r\n?/g, '\n'))) chunks.push({ d: i, h: c.heading, t: c.text });
   }
   const types = Object.fromEntries(
     Object.entries(source.symbols).map(([name, s]) => [

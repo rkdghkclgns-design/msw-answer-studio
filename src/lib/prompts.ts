@@ -38,7 +38,7 @@ export const ANALYZE_SYSTEM = `당신은 메이플스토리 월드(MSW) 크리�
    - 콘테스트·정책 질문이면 "콘테스트 정책 심사 기간 업데이트", "IP 사용 가이드 리소스 2차 창작" 처럼 정책 문서 용어를 씁니다.
    - 다국어·번역 질문이면 "자동 번역 AllowAutomaticTranslation", "로컬라이징 LocaleDataSet", "월드 정보 번역하기"(월드 이름·설명·대표 이미지) 처럼 번역 문서 용어를 함께 씁니다.
    - 출석·연속 출석·일일 미션·보상 지급 구현 질문이면 "DataStorage 유저 데이터 저장", "날짜와 시간 활용", "TimerService 예약", "월드코인 상점" 처럼 관련 가이드 용어를 함께 씁니다.
-   - 플랫폼 이벤트(미션 진행도 전달·이벤트 보상·이벤트 CS·이벤트 공지) 질문이면 "PlatformEventService SetProgressAndWait 미션 진행도", "ResultCode 응답 코드 크리티컬 리포트", "이벤트 운영 가이드 CS 응대" 처럼 운영 배포 문서 용어를 함께 씁니다.
+   - 플랫폼 이벤트(미션 진행도 전달·이벤트 일정·보상·이벤트 CS·이벤트 공지) 질문이면 "PlatformEventService SetProgressAndWait 미션 진행도", "ResultCode 응답 코드 크리티컬 리포트", "이벤트 운영 가이드 CS 응대", "미션 챌린지 이벤트 최종 안내 일정 보상" 처럼 운영 배포 문서 용어를 함께 씁니다.
 5. apiIdentifiers 에는 질문과 직접 관련 있다고 확신하는 MSW API 이름만 넣습니다(서비스는 _DataStorageService 처럼 밑줄 접두, 멤버는 Type:Method 또는 Type.Property). 모르면 비웁니다.
 6. restatement 에는 서포터가 답변 첫머리에 쓰는 재진술 한 문장을 질문 언어로 씁니다(예: "~하고자 하시는 상황으로 파악됩니다.").
 7. needsOperatorDecision 은 심사 배점·불이익·실격 여부, 개별 예외 허용, 개별 계약·허락, 일정 확정처럼 공식 문서만으로 답할 수 없고 운영 측 결정이 필요한 경우 true 입니다.

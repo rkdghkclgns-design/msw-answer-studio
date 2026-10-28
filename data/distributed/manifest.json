@@ -16,6 +16,14 @@
       "date": "2026-10-19",
       "file": "meworld-creator-festival-2026-event-guide.md",
       "receivedFrom": "메크페2026_이벤트 운영 가이드.pdf (2026-10-28 수령)"
+    },
+    {
+      "id": "distributed-mission-challenge-final-notice-mail",
+      "title": "글로벌 개발 콘테스트 미션 챌린지 월드코인 이벤트 최종 안내 메일 (2차)",
+      "trail": ["운영 배포 문서", "메월드 크리에이터 페스티벌 2026", "적용 범위: 메월드 크리에이터 페스티벌 2026 이벤트 참여 월드 대상"],
+      "date": "2026-10-28",
+      "file": "mission-challenge-final-notice-mail.md",
+      "receivedFrom": "261028_공모전 2차 안내 메일 (1).docx (2026-10-28 수령, 월드별 EventId·MissionCode 표는 원본에도 비어 있음)"
     }
   ],
   "symbols": {

@@ -1,4 +1,4 @@
-// 검색 품질 회귀 평가: 실제 KB(docs.json + qa.json)에 대표 문의 36건을 던져
+// 검색 품질 회귀 평가: 실제 KB(docs.json + qa.json)에 대표 문의 38건을 던져
 // 기대 문서가 근거 목록(상위 10개) 안에 들어오는지 본다. KB가 없으면 건너뛴다.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -72,6 +72,8 @@ const CASES: readonly Case[] = [
   { area: '플랫폼 이벤트(배포 문서)', queries: ['이벤트 미션 진행도 전달 API 사용법', 'PlatformEventService SetProgressAndWait 미션 진행도'], identifiers: ['_PlatformEventService:SetProgressAndWait'], expect: /플랫폼 이벤트 API 명세/ },
   { area: '플랫폼 이벤트(배포 문서)', queries: ['SetProgressAndWait 101 102 응답 코드 크리티컬 리포트 EVENT_NOT_FOUND'], expect: /플랫폼 이벤트 API 명세/ },
   { area: '플랫폼 이벤트(배포 문서)', queries: ['이벤트 보상 받기 버튼이 활성화되지 않음 CS 응대', '이벤트 운영 가이드 CS 응대'], expect: /이벤트 운영 가이드/ },
+  { area: '플랫폼 이벤트(배포 문서)', queries: ['미션 챌린지 이벤트 기간 언제부터 언제까지 보상 월드코인', '미션 챌린지 이벤트 일정 보상'], expect: /미션 챌린지 월드코인 이벤트 최종 안내/ },
+  { area: '플랫폼 이벤트(배포 문서)', queries: ['이벤트 API 사용 권한 부여 그룹장 계정 eventId missionCode 어디서 확인'], expect: /미션 챌린지 월드코인 이벤트 최종 안내/ },
   { area: '원문 그대로(영어)', queries: ['How do I spawn a monster from a script?'], identifiers: ['SpawnService'], expect: /^SpawnService$/ },
   { area: '원문 그대로(중국어)', queries: ['競賽 審查期間 可以更新世界嗎'], expect: /競賽|POLICY|공모전|FAQ/ },
 ];

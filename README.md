@@ -32,7 +32,7 @@
 | 파일 | 출처 | 규모 |
 |---|---|---|
 | `docs.json` | 크리에이터 센터 공개 API(`mverse-developers-api.nexon.com/v1/bbs`) — 가이드·API 레퍼런스·강좌 + 약관·운영정책·FAQ·콘테스트 정책 | 문서 1,048건 · 청크 6,884개 |
-| `docs.json` (운영 배포 문서) | `data/distributed/`: 운영 측이 참여 크리에이터에게 배포한 문서(공개 URL 없음)를 원문대로 옮긴 Markdown — 플랫폼 이벤트 API 명세, 메크페2026 이벤트 운영 가이드 | 문서 2건 · 청크 14개 |
+| `docs.json` (운영 배포 문서) | `data/distributed/`: 운영 측이 참여 크리에이터에게 배포한 문서(공개 URL 없음)를 원문대로 옮긴 Markdown — 플랫폼 이벤트 API 명세, 메크페2026 이벤트 운영 가이드, 미션 챌린지 월드코인 이벤트 최종 안내 메일(2차) | 문서 3건 · 청크 20개 |
 | `symbols.json` | API 레퍼런스에서 추출한 타입/멤버/시그니처/배지(ServerOnly·ClientOnly·Deprecated 등) + 운영 배포 문서에만 있는 API(`PlatformEventService`) | 575 타입 · 6,018 멤버 |
 | `qa.json` | Global Creator Challenge Discord 서버 60개 채널: 공지·FAQ·안내 채널의 공식 글, creation-qa·support·AI Toolkit 토론방·메커톤/모각코 질문 채널의 공식 답변(질문은 익명화 요약, 일반 유저 잡담·이벤트 당첨자 명단은 제외) | 공식 공지 320건 · 공식 답변 371건 |
 
